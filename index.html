@@ -3,90 +3,145 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>田代砲テスト</title>
+<title>Tashiro</title>
 <style>
+  :root {
+    --bg: #0b0e14;
+    --panel: #11151d;
+    --border: #232a36;
+    --text: #e6e6e6;
+    --muted: #5c677a;
+    --accent: #4fd1c5;
+    --accent-disabled: #2a3340;
+    --danger: #e53e3e;
+    --danger-disabled: #4a2525;
+  }
   body {
     margin: 0;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #0b0e14;
-    color: #e6e6e6;
+    background: var(--bg);
+    color: var(--text);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
   .panel {
-    width: min(560px, 92vw);
+    position: relative;
+    width: min(620px, 92vw);
     padding: 2.5rem;
-    border: 1px solid #232a36;
+    border: 1px solid var(--border);
     border-radius: 12px;
-    background: #11151d;
+    background: var(--panel);
     box-shadow: 0 0 40px rgba(0,0,0,0.5);
   }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
   h1 {
-    margin: 0 0 1.5rem;
-    font-size: 1.1rem;
+    margin: 0;
+    font-size: 1.2rem;
     letter-spacing: 0.15em;
-    color: #7a869a;
+    color: var(--muted);
     text-transform: uppercase;
     font-weight: 600;
+  }
+  .lang-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lang-btn:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+  .section-title {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin: 1.5rem 0 0.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.3rem;
   }
   label {
     display: block;
     font-size: 0.7rem;
-    color: #5c677a;
+    color: var(--muted);
     letter-spacing: 0.15em;
     text-transform: uppercase;
     margin-bottom: 0.35rem;
   }
-  input {
+  input, textarea {
     width: 100%;
     box-sizing: border-box;
     padding: 0.6rem 0.75rem;
     margin-bottom: 1rem;
-    background: #0b0e14;
-    border: 1px solid #232a36;
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: 8px;
-    color: #e6e6e6;
+    color: var(--text);
     font-family: inherit;
     font-size: 0.9rem;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 60px;
   }
   .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
-  button {
+  button.action-btn {
     width: 100%;
     padding: 0.85rem;
     margin-top: 0.5rem;
     border: none;
     border-radius: 8px;
-    background: #4fd1c5;
+    background: var(--accent);
     color: #06110f;
     font-family: inherit;
     font-size: 0.95rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     cursor: pointer;
+    text-transform: uppercase;
   }
-  button:disabled {
-    background: #2a3340;
-    color: #5c677a;
+  button.action-btn:disabled {
+    background: var(--accent-disabled);
+    color: var(--muted);
     cursor: not-allowed;
+  }
+  button.danger-btn {
+    background: var(--danger);
+    color: #fff;
+  }
+  button.danger-btn:disabled {
+    background: var(--danger-disabled);
+    color: var(--muted);
   }
   .count {
     margin-top: 2rem;
     font-size: 4rem;
     font-weight: 700;
-    color: #4fd1c5;
+    color: var(--accent);
     line-height: 1;
     text-align: center;
   }
   .label-center {
     text-align: center;
     font-size: 0.7rem;
-    color: #5c677a;
+    color: var(--muted);
     letter-spacing: 0.2em;
     text-transform: uppercase;
     margin-top: 0.35rem;
@@ -94,15 +149,16 @@
   .stats {
     margin-top: 1.75rem;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem 1.5rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
     font-size: 0.95rem;
     color: #b6c0cf;
+    text-align: center;
   }
   .stats span {
     display: block;
     font-size: 0.65rem;
-    color: #5c677a;
+    color: var(--muted);
     letter-spacing: 0.15em;
     text-transform: uppercase;
     margin-bottom: 0.2rem;
@@ -111,39 +167,146 @@
 </head>
 <body>
   <div class="panel">
-    <h1>Tashiro Test</h1>
+    <div class="header">
+      <h1>Tashiro</h1>
+      <button class="lang-btn" id="lang-toggle">English</button>
+    </div>
 
-    <label for="target">target url</label>
-    <input id="target" type="url" value="http://localhost:3000/api/ping">
+    <div class="section-title" data-i18n="sec_target"></div>
+    
+    <label for="target" data-i18n="lbl_target"></label>
+    <input id="target" type="url" value="" data-i18n-placeholder="ph_target">
 
     <div class="row">
       <div>
-        <label for="total">total requests</label>
+        <label for="total" data-i18n="lbl_total"></label>
         <input id="total" type="number" value="200" min="1">
       </div>
       <div>
-        <label for="concurrency">concurrency</label>
-        <input id="concurrency" type="number" value="20" min="1">
+        <label for="batch" data-i18n="lbl_batch"></label>
+        <input id="batch" type="number" value="50" min="1">
       </div>
     </div>
 
-    <button id="start">start</button>
+    <button class="action-btn" id="start" data-i18n="btn_start"></button>
 
     <div class="count" id="count">0</div>
-    <div class="label-center">requests sent</div>
+    <div class="label-center" data-i18n="lbl_sent"></div>
 
     <div class="stats">
-      <div><span>ok</span><b id="ok">0</b></div>
-      <div><span>rate limited</span><b id="limited">0</b></div>
-      <div><span>failed</span><b id="failed">0</b></div>
-      <div><span>rps</span><b id="rps">0.00</b></div>
+      <div><span data-i18n="stat_ok"></span><b id="ok">0</b></div>
+      <div><span data-i18n="stat_limited"></span><b id="limited">0</b></div>
+      <div><span data-i18n="stat_failed"></span><b id="failed">0</b></div>
+      <div><span data-i18n="stat_rps"></span><b id="rps">0.00</b></div>
+    </div>
+
+    <div class="section-title" data-i18n="sec_discord"></div>
+
+    <label for="webhook" data-i18n="lbl_webhook"></label>
+    <input id="webhook" type="url" value="" data-i18n-placeholder="ph_webhook">
+
+    <label for="message" data-i18n="lbl_message"></label>
+    <textarea id="message" data-i18n-placeholder="ph_message"></textarea>
+
+    <div class="row">
+      <div>
+        <label for="spam_total" data-i18n="lbl_spam_total"></label>
+        <input id="spam_total" type="number" value="10" min="1">
+      </div>
+      <div>
+        <label for="spam_delay" data-i18n="lbl_spam_delay"></label>
+        <input id="spam_delay" type="number" value="500" min="0">
+      </div>
+    </div>
+
+    <button class="action-btn danger-btn" id="spam-start" data-i18n="btn_spam"></button>
+    
+    <div class="stats" style="margin-top: 1rem;">
+      <div><span data-i18n="spam_sent"></span><b id="spam-count">0</b></div>
+      <div><span data-i18n="spam_ok"></span><b id="spam-ok">0</b></div>
+      <div><span data-i18n="spam_fail"></span><b id="spam-fail">0</b></div>
+      <div><span data-i18n="spam_status"></span><b id="spam-status">idle</b></div>
     </div>
   </div>
 
 <script>
+  const i18n = {
+    en: {
+      sec_target: "HTTP Target",
+      lbl_target: "Target URL",
+      ph_target: "https://example.com/api/ping",
+      lbl_total: "Total requests",
+      lbl_batch: "Batch size",
+      btn_start: "Start",
+      lbl_sent: "requests sent",
+      stat_ok: "ok",
+      stat_limited: "rate limited",
+      stat_failed: "failed",
+      stat_rps: "rps",
+      sec_discord: "Discord Webhook",
+      lbl_webhook: "Webhook URL",
+      ph_webhook: "https://discord.com/api/webhooks/...",
+      lbl_message: "Message",
+      ph_message: "Hello from Tashiro",
+      lbl_spam_total: "Total messages",
+      lbl_spam_delay: "Delay (ms)",
+      btn_spam: "Spam Webhook",
+      spam_sent: "sent",
+      spam_ok: "ok",
+      spam_fail: "failed",
+      spam_status: "status"
+    },
+    ja: {
+      sec_target: "HTTP ターゲット",
+      lbl_target: "ターゲットURL",
+      ph_target: "https://example.com/api/ping",
+      lbl_total: "総リクエスト数",
+      lbl_batch: "バッチサイズ",
+      btn_start: "スタート",
+      lbl_sent: "送信リクエスト数",
+      stat_ok: "成功",
+      stat_limited: "制限(429)",
+      stat_failed: "失敗",
+      stat_rps: "RPS",
+      sec_discord: "Discord Webhook",
+      lbl_webhook: "Webhook URL",
+      ph_webhook: "https://discord.com/api/webhooks/...",
+      lbl_message: "メッセージ内容",
+      ph_message: "Tashiroからのメッセージ",
+      lbl_spam_total: "送信回数",
+      lbl_spam_delay: "遅延 (ミリ秒)",
+      btn_spam: "Webhookスパム開始",
+      spam_sent: "送信数",
+      spam_ok: "成功",
+      spam_fail: "失敗",
+      spam_status: "ステータス"
+    }
+  };
+
+  let current_lang = "ja";
+
+  function apply_lang(lang) {
+    current_lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (i18n[lang][key]) el.textContent = i18n[lang][key];
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+      const key = el.getAttribute("data-i18n-placeholder");
+      if (i18n[lang][key]) el.placeholder = i18n[lang][key];
+    });
+    document.getElementById("lang-toggle").textContent = lang === "ja" ? "English" : "日本語";
+  }
+
+  document.getElementById("lang-toggle").addEventListener("click", () => {
+    apply_lang(current_lang === "ja" ? "en" : "ja");
+  });
+
+  apply_lang(current_lang);
+
   const target_el = document.getElementById("target");
   const total_el = document.getElementById("total");
-  const concurrency_el = document.getElementById("concurrency");
+  const batch_el = document.getElementById("batch");
   const start_el = document.getElementById("start");
   const count_el = document.getElementById("count");
   const ok_el = document.getElementById("ok");
@@ -164,20 +327,26 @@
     }
   }
 
-  async function run() {
+  function build_url(base, i) {
+    if (!base) return "";
+    const u = new URL(base);
+    u.searchParams.set("_", String(i) + "-" + Math.random().toString(36).slice(2));
+    return u.toString();
+  }
+
+  start_el.addEventListener("click", async () => {
     if (running) return;
+    const base = target_el.value.trim();
+    if (!base) return;
+
     running = true;
     start_el.disabled = true;
 
-    const url = target_el.value.trim();
     const total = Math.max(1, parseInt(total_el.value, 10) || 1);
-    const concurrency = Math.max(1, parseInt(concurrency_el.value, 10) || 1);
+    const batch = Math.max(1, parseInt(batch_el.value, 10) || 1);
 
-    let sent = 0;
-    let ok = 0;
-    let limited = 0;
-    let failed = 0;
-    let started = performance.now();
+    let sent = 0, ok = 0, limited = 0, failed = 0;
+    const started = performance.now();
 
     count_el.textContent = "0";
     ok_el.textContent = "0";
@@ -185,33 +354,95 @@
     failed_el.textContent = "0";
     rps_el.textContent = "0.00";
 
-    async function worker() {
-      while (sent < total) {
-        sent += 1;
-        const result = await fire(url);
-        if (result === "ok") ok += 1;
-        else if (result === "limited") limited += 1;
-        else failed += 1;
-
-        count_el.textContent = String(sent);
-        ok_el.textContent = String(ok);
-        limited_el.textContent = String(limited);
-        failed_el.textContent = String(failed);
-
-        const elapsed = (performance.now() - started) / 1000;
-        rps_el.textContent = elapsed > 0 ? (sent / elapsed).toFixed(2) : "0.00";
+    while (sent < total) {
+      const size = Math.min(batch, total - sent);
+      const promises = [];
+      for (let i = 0; i < size; i += 1) {
+        const url = build_url(base, sent + i);
+        promises.push(fire(url).then((r) => {
+          if (r === "ok") ok += 1;
+          else if (r === "limited") limited += 1;
+          else failed += 1;
+        }));
       }
-    }
+      sent += size;
+      await Promise.all(promises);
 
-    const workers = [];
-    for (let i = 0; i < concurrency; i += 1) workers.push(worker());
-    await Promise.all(workers);
+      count_el.textContent = String(sent);
+      ok_el.textContent = String(ok);
+      limited_el.textContent = String(limited);
+      failed_el.textContent = String(failed);
+      const elapsed = (performance.now() - started) / 1000;
+      rps_el.textContent = elapsed > 0 ? (sent / elapsed).toFixed(2) : "0.00";
+    }
 
     running = false;
     start_el.disabled = false;
+  });
+
+  const webhook_el = document.getElementById("webhook");
+  const message_el = document.getElementById("message");
+  const spam_total_el = document.getElementById("spam_total");
+  const spam_delay_el = document.getElementById("spam_delay");
+  const spam_start_el = document.getElementById("spam-start");
+  const spam_count_el = document.getElementById("spam-count");
+  const spam_ok_el = document.getElementById("spam-ok");
+  const spam_fail_el = document.getElementById("spam-fail");
+  const spam_status_el = document.getElementById("spam-status");
+
+  let spamming = false;
+
+  async function send_webhook(url, content) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content })
+      });
+      if (res.ok) return "ok";
+      return "failed";
+    } catch (e) {
+      return "failed";
+    }
   }
 
-  start_el.addEventListener("click", run);
+  spam_start_el.addEventListener("click", async () => {
+    if (spamming) return;
+    const url = webhook_el.value.trim();
+    const content = message_el.value.trim();
+    if (!url || !content) return;
+
+    spamming = true;
+    spam_start_el.disabled = true;
+    spam_status_el.textContent = "running";
+
+    const total = Math.max(1, parseInt(spam_total_el.value, 10) || 1);
+    const delay = Math.max(0, parseInt(spam_delay_el.value, 10) || 0);
+
+    let sent = 0, ok = 0, failed = 0;
+    spam_count_el.textContent = "0";
+    spam_ok_el.textContent = "0";
+    spam_fail_el.textContent = "0";
+
+    for (let i = 0; i < total; i += 1) {
+      const result = await send_webhook(url, content);
+      sent += 1;
+      if (result === "ok") ok += 1;
+      else failed += 1;
+
+      spam_count_el.textContent = String(sent);
+      spam_ok_el.textContent = String(ok);
+      spam_fail_el.textContent = String(failed);
+
+      if (delay > 0 && i < total - 1) {
+        await new Promise(r => setTimeout(r, delay));
+      }
+    }
+
+    spamming = false;
+    spam_start_el.disabled = false;
+    spam_status_el.textContent = "done";
+  });
 </script>
 </body>
 </html>
