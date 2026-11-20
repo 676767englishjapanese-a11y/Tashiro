@@ -15,6 +15,7 @@
     --accent-disabled: #2a3340;
     --danger: #e53e3e;
     --danger-disabled: #4a2525;
+    --tab-bg: #1a202c;
   }
   body {
     margin: 0;
@@ -39,7 +40,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
   h1 {
     margin: 0;
@@ -64,14 +65,38 @@
     color: var(--text);
     border-color: var(--muted);
   }
-  .section-title {
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin: 1.5rem 0 0.5rem;
+  .tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 0.3rem;
+    padding-bottom: 0.5rem;
+  }
+  .tab {
+    flex: 1;
+    padding: 0.6rem;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: var(--tab-bg);
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .tab:hover:not(.active) {
+    color: var(--text);
+  }
+  .content-section {
+    display: none;
+  }
+  .content-section.active {
+    display: block;
   }
   label {
     display: block;
@@ -92,6 +117,9 @@
     color: var(--text);
     font-family: inherit;
     font-size: 0.9rem;
+  }
+  input::placeholder, textarea::placeholder {
+    color: transparent;
   }
   textarea {
     resize: vertical;
@@ -116,19 +144,11 @@
     letter-spacing: 0.1em;
     cursor: pointer;
     text-transform: uppercase;
+    transition: background 0.2s;
   }
-  button.action-btn:disabled {
-    background: var(--accent-disabled);
-    color: var(--muted);
-    cursor: not-allowed;
-  }
-  button.danger-btn {
+  button.action-btn.stop {
     background: var(--danger);
     color: #fff;
-  }
-  button.danger-btn:disabled {
-    background: var(--danger-disabled);
-    color: var(--muted);
   }
   .count {
     margin-top: 2rem;
@@ -172,118 +192,129 @@
       <button class="lang-btn" id="lang-toggle">English</button>
     </div>
 
-    <div class="section-title" data-i18n="sec_target"></div>
-    
-    <label for="target" data-i18n="lbl_target"></label>
-    <input id="target" type="url" value="" data-i18n-placeholder="ph_target">
+    <div class="tabs">
+      <button class="tab active" id="tab-http" data-i18n="tab_http">HTTP Target</button>
+      <button class="tab" id="tab-discord" data-i18n="tab_discord">Discord Webhook</button>
+    </div>
 
-    <div class="row">
-      <div>
-        <label for="total" data-i18n="lbl_total"></label>
-        <input id="total" type="number" value="200" min="1">
+    <div class="content-section active" id="section-http">
+      <label for="target" data-i18n="lbl_target"></label>
+      <input id="target" type="url" value="">
+
+      <div class="row">
+        <div>
+          <label for="total" data-i18n="lbl_total"></label>
+          <input id="total" type="number" value="200" min="1">
+        </div>
+        <div>
+          <label for="batch" data-i18n="lbl_batch"></label>
+          <input id="batch" type="number" value="50" min="1">
+        </div>
       </div>
-      <div>
-        <label for="batch" data-i18n="lbl_batch"></label>
-        <input id="batch" type="number" value="50" min="1">
+
+      <button class="action-btn" id="start" data-i18n="btn_start"></button>
+
+      <div class="count" id="count">0</div>
+      <div class="label-center" data-i18n="lbl_sent"></div>
+
+      <div class="stats">
+        <div><span data-i18n="stat_ok"></span><b id="ok">0</b></div>
+        <div><span data-i18n="stat_limited"></span><b id="limited">0</b></div>
+        <div><span data-i18n="stat_failed"></span><b id="failed">0</b></div>
+        <div><span data-i18n="stat_rps"></span><b id="rps">0.00</b></div>
       </div>
     </div>
 
-    <button class="action-btn" id="start" data-i18n="btn_start"></button>
+    <div class="content-section" id="section-discord">
+      <label for="webhook" data-i18n="lbl_webhook"></label>
+      <input id="webhook" type="url" value="">
 
-    <div class="count" id="count">0</div>
-    <div class="label-center" data-i18n="lbl_sent"></div>
+      <label for="message" data-i18n="lbl_message"></label>
+      <textarea id="message"></textarea>
 
-    <div class="stats">
-      <div><span data-i18n="stat_ok"></span><b id="ok">0</b></div>
-      <div><span data-i18n="stat_limited"></span><b id="limited">0</b></div>
-      <div><span data-i18n="stat_failed"></span><b id="failed">0</b></div>
-      <div><span data-i18n="stat_rps"></span><b id="rps">0.00</b></div>
-    </div>
-
-    <div class="section-title" data-i18n="sec_discord"></div>
-
-    <label for="webhook" data-i18n="lbl_webhook"></label>
-    <input id="webhook" type="url" value="" data-i18n-placeholder="ph_webhook">
-
-    <label for="message" data-i18n="lbl_message"></label>
-    <textarea id="message" data-i18n-placeholder="ph_message"></textarea>
-
-    <div class="row">
-      <div>
-        <label for="spam_total" data-i18n="lbl_spam_total"></label>
-        <input id="spam_total" type="number" value="10" min="1">
+      <div class="row">
+        <div>
+          <label for="spam_total" data-i18n="lbl_spam_total"></label>
+          <input id="spam_total" type="number" value="10" min="1">
+        </div>
+        <div>
+          <label for="spam_delay" data-i18n="lbl_spam_delay"></label>
+          <input id="spam_delay" type="number" value="500" min="0">
+        </div>
       </div>
-      <div>
-        <label for="spam_delay" data-i18n="lbl_spam_delay"></label>
-        <input id="spam_delay" type="number" value="500" min="0">
-      </div>
-    </div>
 
-    <button class="action-btn danger-btn" id="spam-start" data-i18n="btn_spam"></button>
-    
-    <div class="stats" style="margin-top: 1rem;">
-      <div><span data-i18n="spam_sent"></span><b id="spam-count">0</b></div>
-      <div><span data-i18n="spam_ok"></span><b id="spam-ok">0</b></div>
-      <div><span data-i18n="spam_fail"></span><b id="spam-fail">0</b></div>
-      <div><span data-i18n="spam_status"></span><b id="spam-status">idle</b></div>
+      <button class="action-btn" id="spam-start" data-i18n="btn_spam"></button>
+      
+      <div class="stats" style="margin-top: 1.5rem;">
+        <div><span data-i18n="spam_sent"></span><b id="spam-count">0</b></div>
+        <div><span data-i18n="spam_ok"></span><b id="spam-ok">0</b></div>
+        <div><span data-i18n="spam_fail"></span><b id="spam-fail">0</b></div>
+        <div><span data-i18n="spam_status"></span><b id="spam-status">idle</b></div>
+      </div>
     </div>
   </div>
 
 <script>
   const i18n = {
     en: {
-      sec_target: "HTTP Target",
+      tab_http: "HTTP Target",
+      tab_discord: "Discord Webhook",
       lbl_target: "Target URL",
-      ph_target: "https://example.com/api/ping",
       lbl_total: "Total requests",
       lbl_batch: "Batch size",
       btn_start: "Start",
+      btn_stop: "Stop",
       lbl_sent: "requests sent",
       stat_ok: "ok",
       stat_limited: "rate limited",
       stat_failed: "failed",
       stat_rps: "rps",
-      sec_discord: "Discord Webhook",
       lbl_webhook: "Webhook URL",
-      ph_webhook: "https://discord.com/api/webhooks/...",
       lbl_message: "Message",
-      ph_message: "Hello from Tashiro",
       lbl_spam_total: "Total messages",
       lbl_spam_delay: "Delay (ms)",
       btn_spam: "Spam Webhook",
+      btn_stop_spam: "Stop Spam",
       spam_sent: "sent",
       spam_ok: "ok",
       spam_fail: "failed",
-      spam_status: "status"
+      spam_status: "status",
+      status_idle: "idle",
+      status_running: "running",
+      status_done: "done"
     },
     ja: {
-      sec_target: "HTTP ターゲット",
+      tab_http: "HTTP ターゲット",
+      tab_discord: "Discord Webhook",
       lbl_target: "ターゲットURL",
-      ph_target: "https://example.com/api/ping",
       lbl_total: "総リクエスト数",
       lbl_batch: "バッチサイズ",
       btn_start: "スタート",
+      btn_stop: "停止",
       lbl_sent: "送信リクエスト数",
       stat_ok: "成功",
       stat_limited: "制限(429)",
       stat_failed: "失敗",
       stat_rps: "RPS",
-      sec_discord: "Discord Webhook",
       lbl_webhook: "Webhook URL",
-      ph_webhook: "https://discord.com/api/webhooks/...",
       lbl_message: "メッセージ内容",
-      ph_message: "Tashiroからのメッセージ",
       lbl_spam_total: "送信回数",
       lbl_spam_delay: "遅延 (ミリ秒)",
       btn_spam: "Webhookスパム開始",
+      btn_stop_spam: "スパム停止",
       spam_sent: "送信数",
       spam_ok: "成功",
       spam_fail: "失敗",
-      spam_status: "ステータス"
+      spam_status: "ステータス",
+      status_idle: "待機中",
+      status_running: "実行中",
+      status_done: "完了"
     }
   };
 
   let current_lang = "ja";
+  let running = false;
+  let spamming = false;
 
   function apply_lang(lang) {
     current_lang = lang;
@@ -291,11 +322,14 @@
       const key = el.getAttribute("data-i18n");
       if (i18n[lang][key]) el.textContent = i18n[lang][key];
     });
-    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
-      const key = el.getAttribute("data-i18n-placeholder");
-      if (i18n[lang][key]) el.placeholder = i18n[lang][key];
-    });
     document.getElementById("lang-toggle").textContent = lang === "ja" ? "English" : "日本語";
+    
+    document.getElementById("start").textContent = running ? i18n[lang]["btn_stop"] : i18n[lang]["btn_start"];
+    document.getElementById("spam-start").textContent = spamming ? i18n[lang]["btn_stop_spam"] : i18n[lang]["btn_spam"];
+    
+    const status_key = document.getElementById("spam-status").textContent === i18n.en.status_running || document.getElementById("spam-status").textContent === i18n.ja.status_running ? "status_running" 
+                     : document.getElementById("spam-status").textContent === i18n.en.status_done || document.getElementById("spam-status").textContent === i18n.ja.status_done ? "status_done" : "status_idle";
+    document.getElementById("spam-status").textContent = i18n[lang][status_key];
   }
 
   document.getElementById("lang-toggle").addEventListener("click", () => {
@@ -303,6 +337,20 @@
   });
 
   apply_lang(current_lang);
+
+  document.getElementById("tab-http").addEventListener("click", () => {
+    document.getElementById("tab-http").classList.add("active");
+    document.getElementById("tab-discord").classList.remove("active");
+    document.getElementById("section-http").classList.add("active");
+    document.getElementById("section-discord").classList.remove("active");
+  });
+
+  document.getElementById("tab-discord").addEventListener("click", () => {
+    document.getElementById("tab-discord").classList.add("active");
+    document.getElementById("tab-http").classList.remove("active");
+    document.getElementById("section-discord").classList.add("active");
+    document.getElementById("section-http").classList.remove("active");
+  });
 
   const target_el = document.getElementById("target");
   const total_el = document.getElementById("total");
@@ -314,7 +362,7 @@
   const failed_el = document.getElementById("failed");
   const rps_el = document.getElementById("rps");
 
-  let running = false;
+  let abort_http = false;
 
   async function fire(url) {
     try {
@@ -329,18 +377,28 @@
 
   function build_url(base, i) {
     if (!base) return "";
-    const u = new URL(base);
-    u.searchParams.set("_", String(i) + "-" + Math.random().toString(36).slice(2));
-    return u.toString();
+    try {
+      const u = new URL(base);
+      u.searchParams.set("_", String(i) + "-" + Math.random().toString(36).slice(2));
+      return u.toString();
+    } catch(e) {
+      return base;
+    }
   }
 
   start_el.addEventListener("click", async () => {
-    if (running) return;
+    if (running) {
+      abort_http = true;
+      return;
+    }
+    
     const base = target_el.value.trim();
     if (!base) return;
 
     running = true;
-    start_el.disabled = true;
+    abort_http = false;
+    start_el.textContent = i18n[current_lang]["btn_stop"];
+    start_el.classList.add("stop");
 
     const total = Math.max(1, parseInt(total_el.value, 10) || 1);
     const batch = Math.max(1, parseInt(batch_el.value, 10) || 1);
@@ -354,10 +412,11 @@
     failed_el.textContent = "0";
     rps_el.textContent = "0.00";
 
-    while (sent < total) {
+    while (sent < total && !abort_http) {
       const size = Math.min(batch, total - sent);
       const promises = [];
       for (let i = 0; i < size; i += 1) {
+        if (abort_http) break;
         const url = build_url(base, sent + i);
         promises.push(fire(url).then((r) => {
           if (r === "ok") ok += 1;
@@ -368,6 +427,8 @@
       sent += size;
       await Promise.all(promises);
 
+      if (abort_http) break;
+
       count_el.textContent = String(sent);
       ok_el.textContent = String(ok);
       limited_el.textContent = String(limited);
@@ -377,7 +438,8 @@
     }
 
     running = false;
-    start_el.disabled = false;
+    start_el.textContent = i18n[current_lang]["btn_start"];
+    start_el.classList.remove("stop");
   });
 
   const webhook_el = document.getElementById("webhook");
@@ -390,7 +452,7 @@
   const spam_fail_el = document.getElementById("spam-fail");
   const spam_status_el = document.getElementById("spam-status");
 
-  let spamming = false;
+  let abort_spam = false;
 
   async function send_webhook(url, content) {
     try {
@@ -407,14 +469,20 @@
   }
 
   spam_start_el.addEventListener("click", async () => {
-    if (spamming) return;
+    if (spamming) {
+      abort_spam = true;
+      return;
+    }
+
     const url = webhook_el.value.trim();
     const content = message_el.value.trim();
     if (!url || !content) return;
 
     spamming = true;
-    spam_start_el.disabled = true;
-    spam_status_el.textContent = "running";
+    abort_spam = false;
+    spam_start_el.textContent = i18n[current_lang]["btn_stop_spam"];
+    spam_start_el.classList.add("stop");
+    spam_status_el.textContent = i18n[current_lang]["status_running"];
 
     const total = Math.max(1, parseInt(spam_total_el.value, 10) || 1);
     const delay = Math.max(0, parseInt(spam_delay_el.value, 10) || 0);
@@ -425,6 +493,8 @@
     spam_fail_el.textContent = "0";
 
     for (let i = 0; i < total; i += 1) {
+      if (abort_spam) break;
+      
       const result = await send_webhook(url, content);
       sent += 1;
       if (result === "ok") ok += 1;
@@ -436,12 +506,14 @@
 
       if (delay > 0 && i < total - 1) {
         await new Promise(r => setTimeout(r, delay));
+        if (abort_spam) break;
       }
     }
 
     spamming = false;
-    spam_start_el.disabled = false;
-    spam_status_el.textContent = "done";
+    spam_start_el.textContent = i18n[current_lang]["btn_spam"];
+    spam_start_el.classList.remove("stop");
+    spam_status_el.textContent = i18n[current_lang]["status_done"];
   });
 </script>
 </body>
