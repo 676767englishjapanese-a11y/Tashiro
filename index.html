@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>田代砲テスト</title>
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0b0e14;
+    color: #e6e6e6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .panel {
+    width: min(560px, 92vw);
+    padding: 2.5rem;
+    border: 1px solid #232a36;
+    border-radius: 12px;
+    background: #11151d;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  }
+  h1 {
+    margin: 0 0 1.5rem;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    color: #7a869a;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  label {
+    display: block;
+    font-size: 0.7rem;
+    color: #5c677a;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 1rem;
+    background: #0b0e14;
+    border: 1px solid #232a36;
+    border-radius: 8px;
+    color: #e6e6e6;
+    font-family: inherit;
+    font-size: 0.9rem;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  button {
+    width: 100%;
+    padding: 0.85rem;
+    margin-top: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    background: #4fd1c5;
+    color: #06110f;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+  button:disabled {
+    background: #2a3340;
+    color: #5c677a;
+    cursor: not-allowed;
+  }
+  .count {
+    margin-top: 2rem;
+    font-size: 4rem;
+    font-weight: 700;
+    color: #4fd1c5;
+    line-height: 1;
+    text-align: center;
+  }
+  .label-center {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #5c677a;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 0.35rem;
+  }
+  .stats {
+    margin-top: 1.75rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 1.5rem;
+    font-size: 0.95rem;
+    color: #b6c0cf;
+  }
+  .stats span {
+    display: block;
+    font-size: 0.65rem;
+    color: #5c677a;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+</style>
+</head>
+<body>
+  <div class="panel">
+    <h1>Tashiro Test</h1>
+
+    <label for="target">target url</label>
+    <input id="target" type="url" value="http://localhost:3000/api/ping">
+
+    <div class="row">
+      <div>
+        <label for="total">total requests</label>
+        <input id="total" type="number" value="200" min="1">
+      </div>
+      <div>
+        <label for="concurrency">concurrency</label>
+        <input id="concurrency" type="number" value="20" min="1">
+      </div>
+    </div>
+
+    <button id="start">start</button>
+
+    <div class="count" id="count">0</div>
+    <div class="label-center">requests sent</div>
+
+    <div class="stats">
+      <div><span>ok</span><b id="ok">0</b></div>
+      <div><span>rate limited</span><b id="limited">0</b></div>
+      <div><span>failed</span><b id="failed">0</b></div>
+      <div><span>rps</span><b id="rps">0.00</b></div>
+    </div>
+  </div>
+
+<script>
+  const target_el = document.getElementById("target");
+  const total_el = document.getElementById("total");
+  const concurrency_el = document.getElementById("concurrency");
+  const start_el = document.getElementById("start");
+  const count_el = document.getElementById("count");
+  const ok_el = document.getElementById("ok");
+  const limited_el = document.getElementById("limited");
+  const failed_el = document.getElementById("failed");
+  const rps_el = document.getElementById("rps");
+
+  let running = false;
+
+  async function fire(url) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.status === 429) return "limited";
+      if (res.ok) return "ok";
+      return "failed";
+    } catch (e) {
+      return "failed";
+    }
+  }
+
+  async function run() {
+    if (running) return;
+    running = true;
+    start_el.disabled = true;
+
+    const url = target_el.value.trim();
+    const total = Math.max(1, parseInt(total_el.value, 10) || 1);
+    const concurrency = Math.max(1, parseInt(concurrency_el.value, 10) || 1);
+
+    let sent = 0;
+    let ok = 0;
+    let limited = 0;
+    let failed = 0;
+    let started = performance.now();
+
+    count_el.textContent = "0";
+    ok_el.textContent = "0";
+    limited_el.textContent = "0";
+    failed_el.textContent = "0";
+    rps_el.textContent = "0.00";
+
+    async function worker() {
+      while (sent < total) {
+        sent += 1;
+        const result = await fire(url);
+        if (result === "ok") ok += 1;
+        else if (result === "limited") limited += 1;
+        else failed += 1;
+
+        count_el.textContent = String(sent);
+        ok_el.textContent = String(ok);
+        limited_el.textContent = String(limited);
+        failed_el.textContent = String(failed);
+
+        const elapsed = (performance.now() - started) / 1000;
+        rps_el.textContent = elapsed > 0 ? (sent / elapsed).toFixed(2) : "0.00";
+      }
+    }
+
+    const workers = [];
+    for (let i = 0; i < concurrency; i += 1) workers.push(worker());
+    await Promise.all(workers);
+
+    running = false;
+    start_el.disabled = false;
+  }
+
+  start_el.addEventListener("click", run);
+</script>
+</body>
+</html>
